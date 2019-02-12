@@ -5,40 +5,34 @@ import java.io.IOException;
 import java.io.InputStreamReader;
 import java.io.PrintWriter;
 import java.net.Socket;
+import java.net.URL;
+import java.net.URLEncoder;
 import java.net.UnknownHostException;
+
+import static spark.Spark.port;
 
 public class webClient {
     public static void main(String[] args) throws IOException {
 
-        Socket echoSocket = null;
-        PrintWriter out = null;
-        BufferedReader in = null;
+        String numeros = "1,3,5,4";
+        String url = "https://shielded-mesa-61282.herokuapp.com/results?numbers=" + URLEncoder.encode(numeros, "UTF-8");
 
-        try {
-            echoSocket = new Socket("127.0.0.1", 35000);
-            out = new PrintWriter(echoSocket.getOutputStream(), true);
-            in = new BufferedReader(new InputStreamReader(
-                    echoSocket.getInputStream()));
-        } catch (UnknownHostException e) {
-            System.err.println("Don’t know about host!.");
-            System.exit(1);
-        } catch (IOException e) {
-            System.err.println("Couldn’t get I/O for "
-                    + "the connection to: localhost.");
-            System.exit(1);
+        URL server = new URL(url);
+        try (BufferedReader reader
+                       = new BufferedReader(new InputStreamReader(server.openStream()))) {
+            String inputLine = null;
+            while ((inputLine = reader.readLine()) != null) {
+                System.out.println(inputLine); }
+        } catch (IOException x) {
+            System.err.println(x);
         }
 
-        BufferedReader stdIn = new BufferedReader(
-                new InputStreamReader(System.in));
-        String userInput;
+    }
 
-        while ((userInput = stdIn.readLine()) != null) {
-            out.println(userInput);
-            System.out.println("echo: " + in.readLine());
-            }
-        out.close();
-        in.close();
-        stdIn.close();
-        echoSocket.close();
+    static int getPort() {
+        if (System.getenv("PORT") != null) {
+            return Integer.parseInt(System.getenv("PORT"));
         }
+        return 4567; //returns default port if heroku-port isn't set (i.e. on localhost)
+    }
 }
