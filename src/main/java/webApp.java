@@ -1,9 +1,9 @@
+import java.io.IOException;
 import org.apache.log4j.BasicConfigurator;
 import spark.Request;
 import spark.Response;
-import logic.ListOperator;
 
-import java.util.List;
+
 
 import static spark.Spark.*;
 
@@ -21,14 +21,13 @@ public class webApp {
                 "</head>\n" +
                 "<body>\n" +
                 "\n" +
-                "<h1>Parcial Arep</h1>\n" +
-                "<p>Web application to make operations over a list of n\n" +
-                "real numbers.</p>\n" +
+                "<h1>Square Number</h1>\n" +
+                "<p>Web application to calculate the square of a number using AWS Lambda Function and APIGateway </p>\n" +
                 "\n" +
                 "<form action=\"/results\">\n" +
-                "  Enter the numbers separated by commas:<br>\n" +
+                "  Enter the number:<br>\n" +
                 "\n" +
-                "  <input type=\"text\" name=\"numbers\" value=\"213,234,34,21,5546,657\"><br>\n" +
+                "  <input type=\"text\" name=\"number\" value=\"12\"><br>\n" +
                 "\n" +
                 "  <input type=\"submit\" value=\"Submit\">\n" +
                 "</form>\n" +
@@ -46,17 +45,16 @@ public class webApp {
     }
 
     private static String resultsPage(Request req, Response res) {
-        ListOperator operador = new ListOperator();
+        
+        AWSRequest reqst = new AWSRequest();
+        String result = "not working";
+        try{     
+            result = reqst.getRequest(req.queryParams("number"));
+        }catch(IOException e){
+            e.printStackTrace();
+        }
 
-        List<Integer> lista = operador.stringToList(req.queryParams("numbers"));
-        int maxValue = operador.maximumValue(lista);
-        int minValue = operador.minimumValue(lista);
-        int sum = operador.summatory(lista);
-        int mult = operador.multiplication(lista);
-
-        return "{numeros: " + req.queryParams("numbers") + ", " +
-                "maximo: " + maxValue + ", " + "minimo: " + minValue + ", " + "sumatoria: " + sum
-                + ", " + "multiplicatoria: " + mult + "}";
+        return result;
     }
 
 }
